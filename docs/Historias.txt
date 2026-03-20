@@ -1,0 +1,13 @@
+Eu, como cliente, quero me cadastrar no sistema, para poder solicitar aluguel de automóveis.
+Eu, como cliente, quero autenticar-me no sistema, para acessar meus pedidos.
+Eu, como cliente, quero criar um pedido de aluguel, para alugar um automóvel.
+Eu, como cliente, quero modificar meu pedido, para corrigir informações antes da aprovação.
+Eu, como cliente, quero cancelar meu pedido, para desistir do aluguel.
+Eu, como cliente, quero consultar o status do meu pedido, para acompanhar sua aprovação.
+
+Eu, como empresa, quero modificar pedidos de aluguel, para ajustar informações contratuais.
+Eu, como empresa, quero avaliar pedidos, para decidir se aprovo o contrato.
+
+Eu, como banco, quero avaliar financeiramente um pedido, para verificar a viabilidade do crédito.
+Eu, como banco, quero conceder crédito ao cliente, para viabilizar o aluguel do automóvel.
+Eu, como banco, quero modificar informações do pedido, para ajustar dados financeiros.
