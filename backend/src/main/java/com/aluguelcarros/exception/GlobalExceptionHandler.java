@@ -76,9 +76,10 @@ public class GlobalExceptionHandler {
 
     @Error(global = true)
     public HttpResponse<ErrorResponse> handleGenericException(HttpRequest<?> request, Throwable ex) {
+        String msg = ex.getMessage() != null ? ex.getClass().getSimpleName() + ": " + ex.getMessage() : "Erro interno do servidor";
         ErrorResponse error = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.getCode())
-                .message("Erro interno do servidor")
+                .message(msg)
                 .timestamp(LocalDateTime.now())
                 .build();
         return withCors(HttpResponse.<ErrorResponse>status(HttpStatus.INTERNAL_SERVER_ERROR).body(error));
