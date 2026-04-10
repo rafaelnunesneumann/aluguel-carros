@@ -57,3 +57,54 @@ export interface ApiError {
   timestamp: string;
   errors?: Record<string, string>;
 }
+
+// ── Automóveis ──────────────────────────────────────────────
+
+export interface Automovel {
+  id: number;
+  matricula: string;
+  ano: number;
+  marca: string;
+  modelo: string;
+  placa: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutomovelRequest {
+  matricula: string;
+  ano: number;
+  marca: string;
+  modelo: string;
+  placa: string;
+}
+
+// ── Pedidos ─────────────────────────────────────────────────
+
+export type StatusPedido =
+  | "CRIADO"
+  | "EM_ANALISE"
+  | "APROVADO"
+  | "REPROVADO"
+  | "CANCELADO";
+
+export interface PedidoResponse {
+  id: number;
+  dataCriacao: string;
+  status: StatusPedido;
+  dataAtualizacao: string;
+  clienteId: number;
+  clienteNome: string;
+  clienteCpf: string;
+  automovelId: number;
+  automovelMarca: string;
+  automovelModelo: string;
+  automovelPlaca: string;
+  automovelAno: number;
+  automovelMatricula: string;
+}
+
+export interface PedidoRequest {
+  clienteId: number;
+  automovelId: number;
+}

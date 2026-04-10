@@ -81,3 +81,53 @@ export function parseCurrency(value: string): number {
   const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 }
+
+export function formatDateOnly(dateString: string): string {
+  if (!dateString) return "—";
+  const date = new Date(dateString + "T00:00:00");
+  if (isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+// ── StatusPedido helpers ─────────────────────────────────────
+
+import type { StatusPedido } from "@/types";
+
+export function formatStatusPedido(status: StatusPedido): string {
+  const labels: Record<StatusPedido, string> = {
+    CRIADO: "Criado",
+    EM_ANALISE: "Em Análise",
+    APROVADO: "Aprovado",
+    REPROVADO: "Reprovado",
+    CANCELADO: "Cancelado",
+  };
+  return labels[status] ?? status;
+}
+
+export type StatusVariant = "default" | "secondary" | "outline" | "destructive";
+
+export function statusPedidoVariant(status: StatusPedido): StatusVariant {
+  const map: Record<StatusPedido, StatusVariant> = {
+    CRIADO: "secondary",
+    EM_ANALISE: "default",
+    APROVADO: "default",
+    REPROVADO: "destructive",
+    CANCELADO: "outline",
+  };
+  return map[status] ?? "secondary";
+}
+
+export function statusPedidoClass(status: StatusPedido): string {
+  const map: Record<StatusPedido, string> = {
+    CRIADO: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",
+    EM_ANALISE: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+    APROVADO: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+    REPROVADO: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
+    CANCELADO: "bg-muted text-muted-foreground border-border",
+  };
+  return map[status] ?? "";
+}
