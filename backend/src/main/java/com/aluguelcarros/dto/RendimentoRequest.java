@@ -1,10 +1,12 @@
 package com.aluguelcarros.dto;
 
+import io.micronaut.core.annotation.Introspected;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 
+@Introspected
 @Getter
 @Setter
 @NoArgsConstructor

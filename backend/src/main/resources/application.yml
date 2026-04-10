@@ -1,23 +1,42 @@
-spring:
+micronaut:
   application:
     name: aluguel-carros-api
+  server:
+    port: 8080
+    context-path: /api
+    cors:
+      enabled: true
+      configurations:
+        web:
+          allowed-origins:
+            - http://localhost:3000
+          allowed-methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowed-headers:
+            - "*"
+          allow-credentials: true
 
-  datasource:
+datasources:
+  default:
     url: jdbc:postgresql://localhost:5432/aluguel_carros
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+    db-type: postgres
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - com.aluguelcarros.model
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl:
+          auto: update
+        show_sql: true
         format_sql: true
-
-server:
-  port: 8080
-  servlet:
-    context-path: /api
+        dialect: org.hibernate.dialect.PostgreSQLDialect

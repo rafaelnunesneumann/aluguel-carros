@@ -1,11 +1,13 @@
 package com.aluguelcarros.dto;
 
+import io.micronaut.core.annotation.Introspected;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.List;
 
+@Introspected
 @Getter
 @Setter
 @NoArgsConstructor

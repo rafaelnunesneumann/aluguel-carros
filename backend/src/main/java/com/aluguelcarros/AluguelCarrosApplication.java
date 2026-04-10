@@ -1,12 +1,10 @@
 package com.aluguelcarros;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.micronaut.runtime.Micronaut;
 
-@SpringBootApplication
 public class AluguelCarrosApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AluguelCarrosApplication.class, args);
+        Micronaut.run(AluguelCarrosApplication.class, args);
     }
 }

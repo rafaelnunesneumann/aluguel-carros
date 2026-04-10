@@ -3,55 +3,49 @@ package com.aluguelcarros.controller;
 import com.aluguelcarros.dto.ClienteRequest;
 import com.aluguelcarros.dto.ClienteResponse;
 import com.aluguelcarros.service.ClienteService;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/clientes")
+@Controller("/clientes")
 @RequiredArgsConstructor
 public class ClienteController {
 
     private final ClienteService clienteService;
 
-    @GetMapping
-    public ResponseEntity<Page<ClienteResponse>> listarTodos(
-            @PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(clienteService.listarTodos(pageable));
+    @Get
+    public HttpResponse<Page<ClienteResponse>> listarTodos(Pageable pageable) {
+        return HttpResponse.ok(clienteService.listarTodos(pageable));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(clienteService.buscarPorId(id));
+    @Get("/{id}")
+    public HttpResponse<ClienteResponse> buscarPorId(Long id) {
+        return HttpResponse.ok(clienteService.buscarPorId(id));
     }
 
-    @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<ClienteResponse> buscarPorCpf(@PathVariable String cpf) {
-        return ResponseEntity.ok(clienteService.buscarPorCpf(cpf));
+    @Get("/cpf/{cpf}")
+    public HttpResponse<ClienteResponse> buscarPorCpf(String cpf) {
+        return HttpResponse.ok(clienteService.buscarPorCpf(cpf));
     }
 
-    @PostMapping
-    public ResponseEntity<ClienteResponse> criar(@Valid @RequestBody ClienteRequest request) {
-        ClienteResponse response = clienteService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @Post
+    @Status(HttpStatus.CREATED)
+    public ClienteResponse criar(@Body @Valid ClienteRequest request) {
+        return clienteService.criar(request);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ClienteRequest request) {
-        return ResponseEntity.ok(clienteService.atualizar(id, request));
+    @Put("/{id}")
+    public HttpResponse<ClienteResponse> atualizar(Long id, @Body @Valid ClienteRequest request) {
+        return HttpResponse.ok(clienteService.atualizar(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    @Delete("/{id}")
+    @Status(HttpStatus.NO_CONTENT)
+    public void deletar(Long id) {
         clienteService.deletar(id);
-        return ResponseEntity.noContent().build();
     }
 }

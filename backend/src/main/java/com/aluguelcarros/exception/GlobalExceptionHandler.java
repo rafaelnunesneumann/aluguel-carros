@@ -1,74 +1,74 @@
 package com.aluguelcarros.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Error;
+import jakarta.validation.ConstraintViolationException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@Controller
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+    @Error(global = true, exception = ResourceNotFoundException.class)
+    public HttpResponse<ErrorResponse> handleResourceNotFound(HttpRequest<?> request, ResourceNotFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND.getCode())
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return HttpResponse.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+    @Error(global = true, exception = BusinessException.class)
+    public HttpResponse<ErrorResponse> handleBusinessException(HttpRequest<?> request, BusinessException ex) {
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.CONFLICT.value())
+                .status(HttpStatus.CONFLICT.getCode())
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return HttpResponse.status(HttpStatus.CONFLICT).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+    @Error(global = true, exception = ConstraintViolationException.class)
+    public HttpResponse<ErrorResponse> handleValidationErrors(HttpRequest<?> request, ConstraintViolationException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+        ex.getConstraintViolations().forEach(cv -> {
+            String path = cv.getPropertyPath().toString();
+            String fieldName = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+            errors.put(fieldName, cv.getMessage());
         });
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST.getCode())
                 .message("Erro de validação")
                 .timestamp(LocalDateTime.now())
                 .errors(errors)
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return HttpResponse.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+    @Error(global = true, exception = IllegalStateException.class)
+    public HttpResponse<ErrorResponse> handleIllegalState(HttpRequest<?> request, IllegalStateException ex) {
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST.getCode())
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return HttpResponse.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+    @Error(global = true)
+    public HttpResponse<ErrorResponse> handleGenericException(HttpRequest<?> request, Throwable ex) {
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.getCode())
                 .message("Erro interno do servidor")
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return HttpResponse.serverError(error);
     }
 }

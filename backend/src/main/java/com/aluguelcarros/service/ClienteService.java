@@ -6,17 +6,17 @@ import com.aluguelcarros.exception.ResourceNotFoundException;
 import com.aluguelcarros.model.Cliente;
 import com.aluguelcarros.model.Rendimento;
 import com.aluguelcarros.repository.ClienteRepository;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+import io.micronaut.transaction.annotation.Transactional;
+import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Singleton
 @RequiredArgsConstructor
 public class ClienteService {
 
@@ -88,10 +88,9 @@ public class ClienteService {
 
     @Transactional
     public void deletar(Long id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Cliente não encontrado com id: " + id);
-        }
-        clienteRepository.deleteById(id);
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
+        clienteRepository.delete(cliente);
     }
 
     // ---- Mapeamento ----
