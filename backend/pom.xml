@@ -21,6 +21,7 @@
         <micronaut.testresources.version>2.6.2</micronaut.testresources.version>
         <micronaut.test.resources.version>2.6.2</micronaut.test.resources.version>
         <micronaut.runtime>netty</micronaut.runtime>
+        <micronaut.security.version>4.11.0</micronaut.security.version>
         <lombok.version>1.18.32</lombok.version>
         <exec.mainClass>com.aluguelcarros.AluguelCarrosApplication</exec.mainClass>
     </properties>
@@ -102,6 +103,20 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Micronaut Security JWT -->
+        <dependency>
+            <groupId>io.micronaut.security</groupId>
+            <artifactId>micronaut-security-jwt</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- BCrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>io.micronaut.test</groupId>
@@ -163,6 +178,11 @@
                             <groupId>io.micronaut.validation</groupId>
                             <artifactId>micronaut-validation-processor</artifactId>
                             <version>${micronaut.validation.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut.security</groupId>
+                            <artifactId>micronaut-security-annotations</artifactId>
+                            <version>${micronaut.security.version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>

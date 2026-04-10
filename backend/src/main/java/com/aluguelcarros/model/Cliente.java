@@ -53,6 +53,13 @@ public class Cliente {
     @Column(length = 20)
     private String telefone;
 
+    @Email(message = "Login deve ser um e-mail válido")
+    @Column(unique = true, length = 150)
+    private String login;
+
+    @Column
+    private String senha;
+
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Size(max = 3, message = "Máximo de 3 rendimentos permitidos")
     @Builder.Default

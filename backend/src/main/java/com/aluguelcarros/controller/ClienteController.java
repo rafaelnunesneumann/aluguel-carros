@@ -8,14 +8,19 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @Controller("/clientes")
-@RequiredArgsConstructor
+@Secured({"ROLE_EMPRESA", "ROLE_BANCO"})
 public class ClienteController {
 
     private final ClienteService clienteService;
+
+    public ClienteController(ClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
 
     @Get
     public HttpResponse<Page<ClienteResponse>> listarTodos(Pageable pageable) {
@@ -23,6 +28,7 @@ public class ClienteController {
     }
 
     @Get("/{id}")
+    @Secured(SecurityRule.IS_AUTHENTICATED)
     public HttpResponse<ClienteResponse> buscarPorId(Long id) {
         return HttpResponse.ok(clienteService.buscarPorId(id));
     }
@@ -39,6 +45,7 @@ public class ClienteController {
     }
 
     @Put("/{id}")
+    @Secured(SecurityRule.IS_AUTHENTICATED)
     public HttpResponse<ClienteResponse> atualizar(Long id, @Body @Valid ClienteRequest request) {
         return HttpResponse.ok(clienteService.atualizar(id, request));
     }

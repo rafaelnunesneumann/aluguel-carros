@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +14,14 @@ import {
   ClipboardList,
   User,
   Car,
-  Calendar,
   Hash,
-  CreditCard,
+  FileText,
+  Banknote,
 } from "lucide-react";
-import { PedidoResponse } from "@/types";
-import { formatCpf, formatDate, formatDateOnly } from "@/lib/formatters";
+import { PedidoResponse, ContratoResponse, ContratoCreditoResponse } from "@/types";
+import { formatCpf, formatDate, formatDateOnly, formatCurrency } from "@/lib/formatters";
 import { PedidoStatusBadge } from "./pedido-status-badge";
+import { buscarContratoPorPedido, buscarCreditoPorPedido } from "@/services/contratoService";
 
 interface Props {
   open: boolean;
@@ -53,6 +55,21 @@ function InfoItem({
 }
 
 export function PedidoDetail({ open, onOpenChange, pedido }: Props) {
+  const [contrato, setContrato] = useState<ContratoResponse | null>(null);
+  const [credito, setCredito] = useState<ContratoCreditoResponse | null>(null);
+
+  useEffect(() => {
+    if (!open || !pedido) {
+      setContrato(null);
+      setCredito(null);
+      return;
+    }
+    if (pedido.status === "APROVADO") {
+      buscarContratoPorPedido(pedido.id).then(setContrato).catch(() => {});
+      buscarCreditoPorPedido(pedido.id).then(setCredito).catch(() => {});
+    }
+  }, [open, pedido]);
+
   if (!pedido) return null;
 
   return (
@@ -86,14 +103,8 @@ export function PedidoDetail({ open, onOpenChange, pedido }: Props) {
               <InfoItem label="ID" value={`#${pedido.id}`} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <InfoItem
-                label="Data de Criação"
-                value={formatDateOnly(pedido.dataCriacao)}
-              />
-              <InfoItem
-                label="Última Atualização"
-                value={formatDate(pedido.dataAtualizacao)}
-              />
+              <InfoItem label="Data de Criação" value={formatDateOnly(pedido.dataCriacao)} />
+              <InfoItem label="Última Atualização" value={formatDate(pedido.dataAtualizacao)} />
             </div>
           </section>
 
@@ -109,9 +120,7 @@ export function PedidoDetail({ open, onOpenChange, pedido }: Props) {
                 <div className="grid grid-cols-2 gap-4">
                   <InfoItem label="Nome" value={pedido.clienteNome} />
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      CPF
-                    </p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">CPF</p>
                     <code className="text-sm bg-muted px-2 py-0.5 rounded-md font-mono">
                       {formatCpf(pedido.clienteCpf)}
                     </code>
@@ -137,17 +146,58 @@ export function PedidoDetail({ open, onOpenChange, pedido }: Props) {
                 <div className="grid grid-cols-3 gap-4">
                   <InfoItem label="Ano" value={pedido.automovelAno} />
                   <InfoItem label="Placa" value={pedido.automovelPlaca} mono />
-                  <InfoItem
-                    label="Matrícula"
-                    value={pedido.automovelMatricula}
-                    mono
-                  />
+                  <InfoItem label="Matrícula" value={pedido.automovelMatricula} mono />
                 </div>
               </CardContent>
             </Card>
           </section>
+
+          {/* ── Contrato ── */}
+          {contrato && (
+            <section className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <FileText className="h-3.5 w-3.5" />
+                Contrato
+              </h3>
+              <Separator />
+              <Card className="border-border/60">
+                <CardContent className="py-3 px-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <InfoItem label="Tipo" value={contrato.tipo} />
+                    <InfoItem label="Data de Assinatura" value={formatDateOnly(contrato.dataAssinatura)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <InfoItem label="Placa" value={contrato.automovelPlaca} mono />
+                    <InfoItem label="Veículo" value={`${contrato.automovelMarca} ${contrato.automovelModelo}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          )}
+
+          {/* ── Crédito ── */}
+          {credito && (
+            <section className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <Banknote className="h-3.5 w-3.5" />
+                Crédito
+              </h3>
+              <Separator />
+              <Card className="border-border/60">
+                <CardContent className="py-3 px-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <InfoItem label="Valor" value={formatCurrency(credito.valor)} />
+                    <InfoItem label="Banco" value={credito.bancoRazaoSocial} />
+                  </div>
+                  <InfoItem label="Concedido em" value={formatDate(credito.createdAt)} />
+                </CardContent>
+              </Card>
+            </section>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
+

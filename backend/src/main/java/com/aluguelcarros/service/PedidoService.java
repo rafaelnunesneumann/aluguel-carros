@@ -12,18 +12,27 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Singleton
-@RequiredArgsConstructor
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final AutomovelRepository automovelRepository;
+    private final ContratoService contratoService;
+
+    public PedidoService(PedidoRepository pedidoRepository,
+                         ClienteRepository clienteRepository,
+                         AutomovelRepository automovelRepository,
+                         ContratoService contratoService) {
+        this.pedidoRepository = pedidoRepository;
+        this.clienteRepository = clienteRepository;
+        this.automovelRepository = automovelRepository;
+        this.contratoService = contratoService;
+    }
 
     @Transactional
     public PedidoResponse criar(PedidoRequest request) {
@@ -79,6 +88,61 @@ public class PedidoService {
         pedido.setStatus(StatusPedido.CANCELADO);
         pedido = pedidoRepository.save(pedido);
         return toResponse(pedido);
+    }
+
+    @Transactional
+    public PedidoResponse alterarStatus(Long id, StatusPedido novoStatus) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado com id: " + id));
+
+        StatusPedido atual = pedido.getStatus();
+        // Transitions allowed for agents: CRIADO → EM_ANALISE, EM_ANALISE → APROVADO/REPROVADO
+        boolean valido = (atual == StatusPedido.CRIADO && novoStatus == StatusPedido.EM_ANALISE)
+                || (atual == StatusPedido.EM_ANALISE && (novoStatus == StatusPedido.APROVADO || novoStatus == StatusPedido.REPROVADO));
+        if (!valido) {
+            throw new BusinessException("Transição de status inválida: " + atual + " → " + novoStatus);
+        }
+
+        pedido.setStatus(novoStatus);
+        pedido = pedidoRepository.save(pedido);
+
+        if (novoStatus == StatusPedido.APROVADO) {
+            contratoService.gerarContrato(pedido);
+        }
+
+        return toResponse(pedido);
+    }
+
+    @Transactional
+    public PedidoResponse modificar(Long id, Long automovelId, Long userId, String userType) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado com id: " + id));
+
+        if ("CLIENTE".equals(userType)) {
+            if (!pedido.getCliente().getId().equals(userId)) {
+                throw new BusinessException("Acesso negado: pedido não pertence ao cliente");
+            }
+            if (pedido.getStatus() != StatusPedido.CRIADO) {
+                throw new BusinessException("Cliente só pode modificar pedidos com status CRIADO");
+            }
+        } else {
+            // EMPRESA or BANCO
+            if (pedido.getStatus() != StatusPedido.CRIADO && pedido.getStatus() != StatusPedido.EM_ANALISE) {
+                throw new BusinessException("Agente só pode modificar pedidos com status CRIADO ou EM_ANALISE");
+            }
+        }
+
+        Automovel automovel = automovelRepository.findById(automovelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Automóvel não encontrado com id: " + automovelId));
+
+        List<StatusPedido> ativos = List.of(StatusPedido.CRIADO, StatusPedido.EM_ANALISE);
+        if (!automovel.getId().equals(pedido.getAutomovel().getId())
+                && pedidoRepository.existsByAutomovelIdAndStatusIn(automovel.getId(), ativos)) {
+            throw new BusinessException("O automóvel selecionado já possui um pedido ativo e não está disponível.");
+        }
+
+        pedido.setAutomovel(automovel);
+        return toResponse(pedidoRepository.save(pedido));
     }
 
     // ---- Mapeamento ----

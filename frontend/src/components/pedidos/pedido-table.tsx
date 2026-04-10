@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, XCircle, MoreHorizontal, ClipboardList } from "lucide-react";
+import { Eye, XCircle, MoreHorizontal, ClipboardList, CheckSquare, CreditCard, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,9 +26,22 @@ interface Props {
   loading: boolean;
   onView: (pedido: PedidoResponse) => void;
   onCancel: (pedido: PedidoResponse) => void;
+  onChangeStatus?: (pedido: PedidoResponse) => void;
+  onModify?: (pedido: PedidoResponse) => void;
+  onConcederCredito?: (pedido: PedidoResponse) => void;
+  mode?: "cliente" | "agente";
 }
 
-export function PedidoTable({ pedidos, loading, onView, onCancel }: Props) {
+export function PedidoTable({
+  pedidos,
+  loading,
+  onView,
+  onCancel,
+  onChangeStatus,
+  onModify,
+  onConcederCredito,
+  mode = "cliente",
+}: Props) {
   if (loading) {
     return (
       <div className="space-y-3">
@@ -47,7 +60,9 @@ export function PedidoTable({ pedidos, loading, onView, onCancel }: Props) {
         </div>
         <h3 className="text-lg font-semibold">Nenhum pedido encontrado</h3>
         <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-          Selecione um cliente e crie um novo pedido de aluguel.
+          {mode === "cliente"
+            ? "Você ainda não possui pedidos. Crie um novo pedido de aluguel."
+            : "Nenhum pedido cadastrado no sistema."}
         </p>
       </div>
     );
@@ -55,6 +70,15 @@ export function PedidoTable({ pedidos, loading, onView, onCancel }: Props) {
 
   const canCancel = (pedido: PedidoResponse) =>
     pedido.status === "CRIADO" || pedido.status === "EM_ANALISE";
+
+  const canChangeStatus = (pedido: PedidoResponse) =>
+    pedido.status === "CRIADO" || pedido.status === "EM_ANALISE";
+
+  const canModify = (pedido: PedidoResponse) =>
+    pedido.status === "CRIADO" || (mode === "agente" && pedido.status === "EM_ANALISE");
+
+  const canConcederCredito = (pedido: PedidoResponse) =>
+    pedido.status === "APROVADO";
 
   return (
     <div className="rounded-lg border border-border/60 overflow-hidden">
@@ -108,11 +132,33 @@ export function PedidoTable({ pedidos, loading, onView, onCancel }: Props) {
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">Ações</span>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={() => onView(pedido)}>
                       <Eye className="mr-2 h-4 w-4" />
                       Visualizar
                     </DropdownMenuItem>
+
+                    {onModify && canModify(pedido) && (
+                      <DropdownMenuItem onClick={() => onModify(pedido)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Modificar
+                      </DropdownMenuItem>
+                    )}
+
+                    {onChangeStatus && canChangeStatus(pedido) && (
+                      <DropdownMenuItem onClick={() => onChangeStatus(pedido)}>
+                        <CheckSquare className="mr-2 h-4 w-4" />
+                        Avaliar
+                      </DropdownMenuItem>
+                    )}
+
+                    {onConcederCredito && canConcederCredito(pedido) && (
+                      <DropdownMenuItem onClick={() => onConcederCredito(pedido)}>
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Conceder Crédito
+                      </DropdownMenuItem>
+                    )}
+
                     {canCancel(pedido) && (
                       <>
                         <DropdownMenuSeparator />
@@ -135,3 +181,5 @@ export function PedidoTable({ pedidos, loading, onView, onCancel }: Props) {
     </div>
   );
 }
+
+

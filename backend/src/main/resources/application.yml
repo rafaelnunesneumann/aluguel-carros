@@ -4,6 +4,22 @@ micronaut:
   server:
     port: 8080
     context-path: /api
+  security:
+    enabled: true
+    authentication: bearer
+    intercept-url-map:
+      - pattern: /auth/**
+        access:
+          - isAnonymous()
+      - pattern: /login
+        access:
+          - isAnonymous()
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: "${JWT_SECRET:AluguelCarros_SecretKey_AtLeast256Bits_1234567890ABCDEF}"
 
 jackson:
   serialization:

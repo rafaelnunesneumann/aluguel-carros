@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final AuthService authService;
 
     @Transactional(readOnly = true)
     public Page<ClienteResponse> listarTodos(Pageable pageable) {
@@ -178,5 +179,47 @@ public class ClienteService {
                 .createdAt(cliente.getCreatedAt())
                 .updatedAt(cliente.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public ClienteResponse registrar(RegisterClienteRequest request) {
+        if (!request.getSenha().equals(request.getConfirmSenha())) {
+            throw new BusinessException("Senhas não conferem");
+        }
+        // E-mail serves as login — check for duplicates
+        if (clienteRepository.findByLogin(request.getEmail()).isPresent()) {
+            throw new BusinessException("Já existe uma conta cadastrada com este e-mail");
+        }
+        // Check for existing CPF
+        Cliente existente = clienteRepository.findByCpf(request.getCpf()).orElse(null);
+        if (existente != null && existente.getStatus() == ClienteStatus.ACTIVE) {
+            throw new BusinessException("Já existe um cliente cadastrado com o CPF: " + request.getCpf());
+        }
+
+        Cliente cliente = Cliente.builder()
+                .nome(request.getNome())
+                .cpf(request.getCpf())
+                .rg(request.getRg())
+                .endereco(request.getEndereco())
+                .profissao(request.getProfissao())
+                .email(request.getEmail())
+                .telefone(request.getTelefone())
+                .login(request.getEmail())
+                .senha(authService.hashPassword(request.getSenha()))
+                .rendimentos(new java.util.ArrayList<>())
+                .build();
+
+        if (request.getRendimentos() != null) {
+            for (RendimentoRequest rendimentoReq : request.getRendimentos()) {
+                Rendimento rendimento = Rendimento.builder()
+                        .entidadeEmpregadora(rendimentoReq.getEntidadeEmpregadora())
+                        .valor(rendimentoReq.getValor())
+                        .cliente(cliente)
+                        .build();
+                cliente.getRendimentos().add(rendimento);
+            }
+        }
+
+        return toResponse(clienteRepository.save(cliente));
     }
 }
