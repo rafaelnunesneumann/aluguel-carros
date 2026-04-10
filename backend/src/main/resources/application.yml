@@ -4,21 +4,10 @@ micronaut:
   server:
     port: 8080
     context-path: /api
-    cors:
-      enabled: true
-      configurations:
-        web:
-          allowed-origins:
-            - http://localhost:3000
-          allowed-methods:
-            - GET
-            - POST
-            - PUT
-            - DELETE
-            - OPTIONS
-          allowed-headers:
-            - "*"
-          allow-credentials: true
+
+jackson:
+  serialization:
+    writeDatesAsTimestamps: false
 
 datasources:
   default:

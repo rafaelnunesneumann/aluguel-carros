@@ -44,8 +44,8 @@ public class ClienteController {
     }
 
     @Delete("/{id}")
-    @Status(HttpStatus.NO_CONTENT)
-    public void deletar(Long id) {
+    public HttpResponse<Void> deletar(Long id) {
         clienteService.deletar(id);
+        return HttpResponse.<Void>ok();
     }
 }

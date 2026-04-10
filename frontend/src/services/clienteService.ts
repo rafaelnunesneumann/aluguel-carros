@@ -1,12 +1,19 @@
 import api from "@/lib/api";
-import { Cliente, ClienteRequest, PageResponse } from "@/types";
+import { Cliente, ClienteRequest, MicronautPage, PageResponse } from "@/types";
 
 export const clienteService = {
   async listarTodos(page = 0, size = 10): Promise<PageResponse<Cliente>> {
-    const response = await api.get<PageResponse<Cliente>>("/clientes", {
+    const response = await api.get<MicronautPage<Cliente>>("/clientes", {
       params: { page, size, sort: "nome,asc" },
     });
-    return response.data;
+    const raw = response.data;
+    return {
+      content: raw.content ?? [],
+      totalElements: raw.totalSize ?? 0,
+      totalPages: raw.totalPages ?? 0,
+      size: raw.size ?? size,
+      number: raw.pageNumber ?? page,
+    };
   },
 
   async buscarPorId(id: number): Promise<Cliente> {

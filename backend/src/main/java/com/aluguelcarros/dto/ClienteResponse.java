@@ -1,5 +1,6 @@
 package com.aluguelcarros.dto;
 
+import com.aluguelcarros.model.ClienteStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class ClienteResponse {
     private String email;
     private String telefone;
     private List<RendimentoResponse> rendimentos;
+    private ClienteStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

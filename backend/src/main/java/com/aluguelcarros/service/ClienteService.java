@@ -4,6 +4,7 @@ import com.aluguelcarros.dto.*;
 import com.aluguelcarros.exception.BusinessException;
 import com.aluguelcarros.exception.ResourceNotFoundException;
 import com.aluguelcarros.model.Cliente;
+import com.aluguelcarros.model.ClienteStatus;
 import com.aluguelcarros.model.Rendimento;
 import com.aluguelcarros.repository.ClienteRepository;
 import io.micronaut.data.model.Page;
@@ -24,26 +25,31 @@ public class ClienteService {
 
     @Transactional(readOnly = true)
     public Page<ClienteResponse> listarTodos(Pageable pageable) {
-        return clienteRepository.findAll(pageable).map(this::toResponse);
+        return clienteRepository.findByStatus(ClienteStatus.ACTIVE, pageable).map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorId(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
+        Cliente cliente = clienteRepository.findByIdAndStatus(id, ClienteStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
         return toResponse(cliente);
     }
 
     @Transactional(readOnly = true)
     public ClienteResponse buscarPorCpf(String cpf) {
-        Cliente cliente = clienteRepository.findByCpf(cpf)
+        Cliente cliente = clienteRepository.findByCpfAndStatus(cpf, ClienteStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com CPF: " + cpf));
         return toResponse(cliente);
     }
 
     @Transactional
     public ClienteResponse criar(ClienteRequest request) {
-        if (clienteRepository.existsByCpf(request.getCpf())) {
+        // Se já existe com esse CPF mas está DELETED, reativa com os novos dados
+        Cliente existente = clienteRepository.findByCpf(request.getCpf()).orElse(null);
+        if (existente != null) {
+            if (existente.getStatus() == ClienteStatus.DELETED) {
+                return reativar(existente, request);
+            }
             throw new BusinessException("Já existe um cliente cadastrado com o CPF: " + request.getCpf());
         }
 
@@ -54,10 +60,10 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponse atualizar(Long id, ClienteRequest request) {
-        Cliente cliente = clienteRepository.findById(id)
+        Cliente cliente = clienteRepository.findByIdAndStatus(id, ClienteStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
 
-        if (clienteRepository.existsByCpfAndIdNot(request.getCpf(), id)) {
+        if (clienteRepository.existsByCpfAndIdNotAndStatus(request.getCpf(), id, ClienteStatus.ACTIVE)) {
             throw new BusinessException("Já existe outro cliente cadastrado com o CPF: " + request.getCpf());
         }
 
@@ -88,9 +94,37 @@ public class ClienteService {
 
     @Transactional
     public void deletar(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
+        Cliente cliente = clienteRepository.findByIdAndStatus(id, ClienteStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
-        clienteRepository.delete(cliente);
+        cliente.setStatus(ClienteStatus.DELETED);
+        clienteRepository.save(cliente);
+    }
+
+    // ---- Reativação ----
+
+    private ClienteResponse reativar(Cliente cliente, ClienteRequest request) {
+        cliente.setNome(request.getNome());
+        cliente.setRg(request.getRg());
+        cliente.setEndereco(request.getEndereco());
+        cliente.setProfissao(request.getProfissao());
+        cliente.setEmail(request.getEmail());
+        cliente.setTelefone(request.getTelefone());
+        cliente.setStatus(ClienteStatus.ACTIVE);
+
+        cliente.getRendimentos().clear();
+        if (request.getRendimentos() != null) {
+            for (RendimentoRequest rendimentoReq : request.getRendimentos()) {
+                Rendimento rendimento = Rendimento.builder()
+                        .entidadeEmpregadora(rendimentoReq.getEntidadeEmpregadora())
+                        .valor(rendimentoReq.getValor())
+                        .cliente(cliente)
+                        .build();
+                cliente.getRendimentos().add(rendimento);
+            }
+        }
+
+        cliente = clienteRepository.save(cliente);
+        return toResponse(cliente);
     }
 
     // ---- Mapeamento ----
@@ -140,6 +174,7 @@ public class ClienteService {
                 .email(cliente.getEmail())
                 .telefone(cliente.getTelefone())
                 .rendimentos(rendimentoResponses)
+                .status(cliente.getStatus())
                 .createdAt(cliente.getCreatedAt())
                 .updatedAt(cliente.getUpdatedAt())
                 .build();

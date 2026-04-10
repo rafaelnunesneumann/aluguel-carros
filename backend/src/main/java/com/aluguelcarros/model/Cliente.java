@@ -64,10 +64,16 @@ public class Cliente {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    @Builder.Default
+    private ClienteStatus status = ClienteStatus.ACTIVE;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (status == null) status = ClienteStatus.ACTIVE;
     }
 
     @PreUpdate

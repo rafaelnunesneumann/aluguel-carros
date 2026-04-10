@@ -1,3 +1,5 @@
+export type ClienteStatus = "ACTIVE" | "DELETED";
+
 export interface Rendimento {
   id?: number;
   entidadeEmpregadora: string;
@@ -14,6 +16,7 @@ export interface Cliente {
   email: string;
   telefone: string;
   rendimentos: Rendimento[];
+  status: ClienteStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,7 +27,7 @@ export interface ClienteRequest {
   rg: string;
   endereco: string;
   profissao?: string;
-  email?: string;
+  email: string;
   telefone?: string;
   rendimentos?: Rendimento[];
 }
@@ -35,9 +38,17 @@ export interface PageResponse<T> {
   totalPages: number;
   size: number;
   number: number;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
+}
+
+// Raw shape returned by Micronaut Data Page serialization
+export interface MicronautPage<T> {
+  content: T[];
+  totalSize: number;
+  totalPages: number;
+  size: number;
+  pageNumber: number;
+  numberOfElements: number;
+  offset: number;
 }
 
 export interface ApiError {

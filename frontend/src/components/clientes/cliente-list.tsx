@@ -36,9 +36,9 @@ export function ClienteList() {
     setLoading(true);
     try {
       const data = await clienteService.listarTodos(page, 10);
-      setClientes(data.content);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
+      setClientes(data.content ?? []);
+      setTotalPages(data.totalPages ?? 0);
+      setTotalElements(data.totalElements ?? 0);
     } catch {
       toast.error("Erro ao carregar clientes", {
         description: "Verifique se o servidor está online.",

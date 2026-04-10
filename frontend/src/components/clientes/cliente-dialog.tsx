@@ -66,7 +66,7 @@ const clienteSchema = z.object({
     .min(1, "Endereço é obrigatório")
     .max(255, "Endereço deve ter no máximo 255 caracteres"),
   profissao: z.string().max(100, "Máximo 100 caracteres").optional().or(z.literal("")),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+  email: z.string().min(1, "E-mail é obrigatório").email("E-mail inválido"),
   telefone: z
     .string()
     .optional()
@@ -293,6 +293,21 @@ export function ClienteDialog({ open, onOpenChange, cliente, onSuccess }: Props)
                     <p className="text-xs text-destructive">{errors.endereco.message}</p>
                   )}
                 </div>
+
+                {/* E-mail */}
+                <div className="sm:col-span-2 space-y-1.5">
+                  <Label htmlFor="email">E-mail *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                    {...register("email")}
+                    className={errors.email ? "border-destructive focus-visible:ring-destructive/30" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-destructive">{errors.email.message}</p>
+                  )}
+                </div>
               </div>
             </fieldset>
 
@@ -334,21 +349,6 @@ export function ClienteDialog({ open, onOpenChange, cliente, onSuccess }: Props)
                   />
                   {errors.telefone && (
                     <p className="text-xs text-destructive">{errors.telefone.message}</p>
-                  )}
-                </div>
-
-                {/* E-mail */}
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@exemplo.com"
-                    {...register("email")}
-                    className={errors.email ? "border-destructive focus-visible:ring-destructive/30" : ""}
-                  />
-                  {errors.email && (
-                    <p className="text-xs text-destructive">{errors.email.message}</p>
                   )}
                 </div>
               </div>
