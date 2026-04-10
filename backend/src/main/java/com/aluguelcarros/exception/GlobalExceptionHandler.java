@@ -3,6 +3,7 @@ package com.aluguelcarros.exception;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import jakarta.validation.ConstraintViolationException;
@@ -14,6 +15,17 @@ import java.util.Map;
 @Controller
 public class GlobalExceptionHandler {
 
+    private static final String CORS_ORIGIN  = "*";
+    private static final String CORS_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
+    private static final String CORS_HEADERS = "Content-Type, Accept, Authorization, X-Requested-With";
+
+    private <T> MutableHttpResponse<T> withCors(MutableHttpResponse<T> response) {
+        return response
+                .header("Access-Control-Allow-Origin",  CORS_ORIGIN)
+                .header("Access-Control-Allow-Methods", CORS_METHODS)
+                .header("Access-Control-Allow-Headers", CORS_HEADERS);
+    }
+
     @Error(global = true, exception = ResourceNotFoundException.class)
     public HttpResponse<ErrorResponse> handleResourceNotFound(HttpRequest<?> request, ResourceNotFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -21,7 +33,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return HttpResponse.status(HttpStatus.NOT_FOUND).body(error);
+        return withCors(HttpResponse.status(HttpStatus.NOT_FOUND).body(error));
     }
 
     @Error(global = true, exception = BusinessException.class)
@@ -31,7 +43,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return HttpResponse.status(HttpStatus.CONFLICT).body(error);
+        return withCors(HttpResponse.status(HttpStatus.CONFLICT).body(error));
     }
 
     @Error(global = true, exception = ConstraintViolationException.class)
@@ -49,7 +61,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .errors(errors)
                 .build();
-        return HttpResponse.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return withCors(HttpResponse.status(HttpStatus.BAD_REQUEST).body(errorResponse));
     }
 
     @Error(global = true, exception = IllegalStateException.class)
@@ -59,7 +71,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return HttpResponse.status(HttpStatus.BAD_REQUEST).body(error);
+        return withCors(HttpResponse.status(HttpStatus.BAD_REQUEST).body(error));
     }
 
     @Error(global = true)
@@ -69,6 +81,6 @@ public class GlobalExceptionHandler {
                 .message("Erro interno do servidor")
                 .timestamp(LocalDateTime.now())
                 .build();
-        return HttpResponse.serverError(error);
+        return withCors(HttpResponse.<ErrorResponse>status(HttpStatus.INTERNAL_SERVER_ERROR).body(error));
     }
 }
