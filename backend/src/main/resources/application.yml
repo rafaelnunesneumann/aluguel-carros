@@ -2,7 +2,7 @@ micronaut:
   application:
     name: aluguel-carros-api
   server:
-    port: 8080
+    port: ${PORT:8080}
     context-path: /api
   security:
     enabled: true
