@@ -11,7 +11,9 @@ import org.reactivestreams.Publisher;
 @Filter("/**")
 public class CorsConfig implements HttpServerFilter {
 
-    private static final String ORIGIN  = "http://localhost:3000";
+    private static final String ORIGIN  = System.getenv("ALLOWED_ORIGIN") != null
+            ? System.getenv("ALLOWED_ORIGIN")
+            : "http://localhost:3000";
     private static final String METHODS = "GET, POST, PUT, DELETE, OPTIONS";
     private static final String HEADERS = "Content-Type, Accept, Authorization, X-Requested-With";
     private static final String MAX_AGE = "1800";
