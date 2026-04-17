@@ -38,7 +38,10 @@ function deriveUserType(roles: string[]): string {
 function decodeJwtPayload(token: string): Record<string, unknown> {
   try {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64));
+    // atob() returns a binary (Latin-1) string; convert bytes to UTF-8 properly
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder("utf-8").decode(bytes));
   } catch {
     return {};
   }

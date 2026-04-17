@@ -1,22 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
 import { useAuth } from "@/contexts/auth-context";
 import { ClienteDashboard } from "@/components/dashboard/cliente-dashboard";
 import { AgenteDashboard } from "@/components/dashboard/agente-dashboard";
+import { LandingPage } from "@/components/landing-page";
+import { Header } from "@/components/header";
 import { Car } from "lucide-react";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -35,7 +27,7 @@ export default function Home() {
     );
   }
 
-  if (!user) return null;
+  if (!user) return <LandingPage />;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
