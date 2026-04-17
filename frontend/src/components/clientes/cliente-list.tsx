@@ -114,10 +114,6 @@ export function ClienteList() {
             Gerencie os clientes cadastrados no sistema
           </p>
         </div>
-        <Button onClick={handleCreate} className="gap-2 btn-shimmer border-0 font-heading font-semibold tracking-wider uppercase text-sm h-10">
-          <Plus className="h-4 w-4" />
-          Novo Cliente
-        </Button>
       </div>
 
       {/* ── Search + Table ───────────────────────────────── */}
