@@ -67,15 +67,6 @@ export function AgenteDashboard() {
             <Users className="h-4 w-4" />
             Clientes
           </TabsTrigger>
-          {isBanco && (
-            <TabsTrigger
-              value="creditos"
-              className="gap-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
-            >
-              <Banknote className="h-4 w-4" />
-              Créditos
-            </TabsTrigger>
-          )}
         </TabsList>
 
         <div className="mt-6">
@@ -90,6 +81,12 @@ export function AgenteDashboard() {
           <TabsContent value="clientes">
             <ClienteList />
           </TabsContent>
+
+          {isBanco && (
+            <TabsContent value="creditos">
+              <PedidoList mode="agente" />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </div>
