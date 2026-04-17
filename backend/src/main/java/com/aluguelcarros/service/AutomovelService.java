@@ -5,10 +5,8 @@ import com.aluguelcarros.dto.AutomovelResponse;
 import com.aluguelcarros.exception.BusinessException;
 import com.aluguelcarros.exception.ResourceNotFoundException;
 import com.aluguelcarros.model.Automovel;
-import com.aluguelcarros.model.Pedido;
 import com.aluguelcarros.model.StatusPedido;
 import com.aluguelcarros.repository.AutomovelRepository;
-import com.aluguelcarros.repository.ContratoRepository;
 import com.aluguelcarros.repository.PedidoRepository;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
@@ -23,11 +21,10 @@ public class AutomovelService {
 
     private final AutomovelRepository automovelRepository;
     private final PedidoRepository pedidoRepository;
-    private final ContratoRepository contratoRepository;
 
     @Transactional(readOnly = true)
     public List<AutomovelResponse> listarTodos() {
-        return automovelRepository.findAllByAtivo(true).stream()
+        return automovelRepository.findAll().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -35,7 +32,7 @@ public class AutomovelService {
     @Transactional(readOnly = true)
     public List<AutomovelResponse> listarDisponiveis() {
         List<StatusPedido> ativos = List.of(StatusPedido.CRIADO, StatusPedido.EM_ANALISE);
-        return automovelRepository.findAllByAtivo(true).stream()
+        return automovelRepository.findAll().stream()
                 .filter(a -> !pedidoRepository.existsByAutomovelIdAndStatusIn(a.getId(), ativos))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -43,7 +40,7 @@ public class AutomovelService {
 
     @Transactional(readOnly = true)
     public AutomovelResponse buscarPorId(Long id) {
-        Automovel automovel = automovelRepository.findByIdAndAtivo(id, true)
+        Automovel automovel = automovelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Automóvel não encontrado com id: " + id));
         return toResponse(automovel);
     }
@@ -86,25 +83,15 @@ public class AutomovelService {
 
     @Transactional
     public void deletar(Long id) {
-        Automovel automovel = automovelRepository.findByIdAndAtivo(id, true)
+        Automovel automovel = automovelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Automóvel não encontrado com id: " + id));
 
-        // Bloquear exclusão se houver aluguel ativo (contrato existente)
-        if (contratoRepository.existsByAutomovelId(id)) {
-            throw new BusinessException("ALUGUEL_ATIVO: Este automóvel possui um aluguel ativo e não pode ser excluído.");
+        List<StatusPedido> ativos = List.of(StatusPedido.CRIADO, StatusPedido.EM_ANALISE);
+        if (pedidoRepository.existsByAutomovelIdAndStatusIn(id, ativos)) {
+            throw new BusinessException("Não é possível excluir o automóvel pois possui pedido(s) ativo(s).");
         }
 
-        // Reprovar pedidos pendentes vinculados ao automóvel
-        List<StatusPedido> pendentes = List.of(StatusPedido.CRIADO, StatusPedido.EM_ANALISE);
-        List<Pedido> pedidosPendentes = pedidoRepository.findByAutomovelIdAndStatusIn(id, pendentes);
-        for (Pedido pedido : pedidosPendentes) {
-            pedido.setStatus(StatusPedido.REPROVADO);
-            pedidoRepository.save(pedido);
-        }
-
-        // Soft delete
-        automovel.setAtivo(false);
-        automovelRepository.save(automovel);
+        automovelRepository.deleteById(automovel.getId());
     }
 
     // ---- Mapeamento ----

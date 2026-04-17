@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Search, RefreshCw, Loader2 } from "lucide-react";
+import { Plus, Search, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,8 +28,6 @@ export function AutomovelList() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [blockedOpen, setBlockedOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedAutomovel, setSelectedAutomovel] = useState<Automovel | null>(null);
 
   const fetchAutomoveis = useCallback(async () => {
@@ -78,7 +76,6 @@ export function AutomovelList() {
 
   const handleDeleteConfirm = async () => {
     if (!selectedAutomovel) return;
-    setIsDeleting(true);
     try {
       await automovelService.deletar(selectedAutomovel.id);
       toast.success("Automóvel excluído", {
@@ -86,17 +83,12 @@ export function AutomovelList() {
       });
       fetchAutomoveis();
     } catch (error: any) {
-      const message: string =
+      const message =
         error?.response?.data?.message || "Erro ao excluir automóvel.";
-      if (message.startsWith("ALUGUEL_ATIVO")) {
-        setDeleteOpen(false);
-        setBlockedOpen(true);
-        return;
-      }
       toast.error("Erro ao excluir", { description: message });
     } finally {
-      setIsDeleting(false);
       setDeleteOpen(false);
+      setSelectedAutomovel(null);
     }
   };
 
@@ -171,7 +163,7 @@ export function AutomovelList() {
         onSuccess={handleSaveSuccess}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={(open) => { if (!isDeleting) setDeleteOpen(open); }}>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <div className="flex items-center gap-3">
@@ -191,45 +183,12 @@ export function AutomovelList() {
             </div>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-              className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-70"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {isDeleting ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Excluindo...</>
-              ) : (
-                "Sim, excluir"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Modal de bloqueio — aluguel ativo */}
-      <AlertDialog open={blockedOpen} onOpenChange={(open) => { setBlockedOpen(open); if (!open) setSelectedAutomovel(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10">
-                <AlertTriangle className="h-5 w-5 text-amber-500" />
-              </div>
-              <div>
-                <AlertDialogTitle>Exclusão não permitida</AlertDialogTitle>
-                <AlertDialogDescription className="mt-1">
-                  O automóvel{" "}
-                  <strong className="text-foreground">
-                    {selectedAutomovel?.marca} {selectedAutomovel?.modelo}
-                  </strong>{" "}
-                  possui um <strong className="text-foreground">aluguel ativo</strong>. Encerre o contrato antes de excluí-lo.
-                </AlertDialogDescription>
-              </div>
-            </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogAction onClick={() => { setBlockedOpen(false); setSelectedAutomovel(null); }}>
-              Entendido
+              Sim, excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

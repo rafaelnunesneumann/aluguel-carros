@@ -17,8 +17,4 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     Page<Pedido> findAll(Pageable pageable);
 
     boolean existsByAutomovelIdAndStatusIn(Long automovelId, List<StatusPedido> statuses);
-
-    List<Pedido> findByAutomovelIdAndStatusIn(Long automovelId, List<StatusPedido> statuses);
-
-    List<Pedido> findByClienteIdAndStatusIn(Long clienteId, List<StatusPedido> statuses);
 }

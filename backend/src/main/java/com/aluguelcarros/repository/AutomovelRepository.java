@@ -4,7 +4,6 @@ import com.aluguelcarros.model.Automovel;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,8 +20,4 @@ public interface AutomovelRepository extends JpaRepository<Automovel, Long> {
     Optional<Automovel> findByMatricula(String matricula);
 
     Optional<Automovel> findByPlaca(String placa);
-
-    List<Automovel> findAllByAtivo(boolean ativo);
-
-    Optional<Automovel> findByIdAndAtivo(Long id, boolean ativo);
 }
