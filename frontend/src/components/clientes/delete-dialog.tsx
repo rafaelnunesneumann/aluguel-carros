@@ -10,18 +10,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clienteName: string;
   onConfirm: () => void;
+  loading?: boolean;
 }
 
-export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm }: Props) {
+export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm, loading = false }: Props) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={(v) => { if (!loading) onOpenChange(v); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
@@ -39,12 +40,20 @@ export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm }: Pro
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-4">
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            disabled={loading}
+            className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-70"
           >
-            Sim, excluir
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Excluindo...
+              </>
+            ) : (
+              "Sim, excluir"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

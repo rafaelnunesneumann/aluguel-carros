@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Search, RefreshCw } from "lucide-react";
+import { Plus, Search, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export function AutomovelList() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [selectedAutomovel, setSelectedAutomovel] = useState<Automovel | null>(null);
 
   const fetchAutomoveis = useCallback(async () => {
@@ -76,6 +77,7 @@ export function AutomovelList() {
 
   const handleDeleteConfirm = async () => {
     if (!selectedAutomovel) return;
+    setDeleteLoading(true);
     try {
       await automovelService.deletar(selectedAutomovel.id);
       toast.success("Automóvel excluído", {
@@ -87,6 +89,7 @@ export function AutomovelList() {
         error?.response?.data?.message || "Erro ao excluir automóvel.";
       toast.error("Erro ao excluir", { description: message });
     } finally {
+      setDeleteLoading(false);
       setDeleteOpen(false);
       setSelectedAutomovel(null);
     }
@@ -163,7 +166,7 @@ export function AutomovelList() {
         onSuccess={handleSaveSuccess}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <AlertDialog open={deleteOpen} onOpenChange={(v) => { if (!deleteLoading) setDeleteOpen(v); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <div className="flex items-center gap-3">
@@ -183,12 +186,20 @@ export function AutomovelList() {
             </div>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteLoading}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              disabled={deleteLoading}
+              className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-70"
             >
-              Sim, excluir
+              {deleteLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Sim, excluir"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

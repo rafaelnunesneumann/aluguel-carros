@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,7 @@ export function PedidoList({ mode, clienteId }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [modifyDialogOpen, setModifyDialogOpen] = useState(false);
   const [creditoDialogOpen, setCreditoDialogOpen] = useState(false);
@@ -86,6 +87,7 @@ export function PedidoList({ mode, clienteId }: Props) {
 
   const handleCancelConfirm = async () => {
     if (!selectedPedido) return;
+    setCancelLoading(true);
     try {
       await pedidoService.cancelar(selectedPedido.id);
       toast.success("Pedido cancelado", { description: `Pedido #${selectedPedido.id} cancelado com sucesso.` });
@@ -93,6 +95,7 @@ export function PedidoList({ mode, clienteId }: Props) {
     } catch (error: any) {
       toast.error("Erro ao cancelar", { description: error?.response?.data?.message || "Erro ao cancelar pedido." });
     } finally {
+      setCancelLoading(false);
       setCancelOpen(false);
       setSelectedPedido(null);
     }
@@ -183,7 +186,7 @@ export function PedidoList({ mode, clienteId }: Props) {
         onSuccess={fetchPedidos}
       />
 
-      <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+      <AlertDialog open={cancelOpen} onOpenChange={(v) => { if (!cancelLoading) setCancelOpen(v); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <div className="flex items-center gap-3">
@@ -201,12 +204,20 @@ export function PedidoList({ mode, clienteId }: Props) {
             </div>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogCancel disabled={cancelLoading}>Voltar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelConfirm}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              disabled={cancelLoading}
+              className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-70"
             >
-              Sim, cancelar pedido
+              {cancelLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cancelando...
+                </>
+              ) : (
+                "Sim, cancelar pedido"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

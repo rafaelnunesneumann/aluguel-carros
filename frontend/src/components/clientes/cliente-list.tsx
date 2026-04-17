@@ -24,6 +24,7 @@ export function ClienteList() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
   const fetchClientes = useCallback(async () => {
@@ -80,6 +81,7 @@ export function ClienteList() {
 
   const handleDeleteConfirm = async () => {
     if (!selectedCliente) return;
+    setDeleteLoading(true);
     try {
       await clienteService.deletar(selectedCliente.id);
       toast.success("Cliente excluído", {
@@ -89,6 +91,7 @@ export function ClienteList() {
     } catch {
       toast.error("Erro ao excluir cliente");
     } finally {
+      setDeleteLoading(false);
       setDeleteOpen(false);
       setSelectedCliente(null);
     }
@@ -211,6 +214,7 @@ export function ClienteList() {
         onOpenChange={setDeleteOpen}
         clienteName={selectedCliente?.nome || ""}
         onConfirm={handleDeleteConfirm}
+        loading={deleteLoading}
       />
     </div>
   );
