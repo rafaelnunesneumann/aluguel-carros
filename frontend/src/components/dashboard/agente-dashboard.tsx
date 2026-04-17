@@ -90,12 +90,6 @@ export function AgenteDashboard() {
           <TabsContent value="clientes">
             <ClienteList />
           </TabsContent>
-
-          {isBanco && (
-            <TabsContent value="creditos">
-              <PedidoList mode="agente" />
-            </TabsContent>
-          )}
         </div>
       </Tabs>
     </div>
