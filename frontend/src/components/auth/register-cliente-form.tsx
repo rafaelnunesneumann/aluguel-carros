@@ -3,11 +3,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,100 +56,132 @@ export default function RegisterClienteForm({ onBack }: Props) {
       toast.success("Conta criada com sucesso! Faça login.");
       router.push("/login");
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-        ?? "Erro ao criar conta";
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        "Erro ao criar conta";
       toast.error(msg);
     }
   }
 
   return (
-    <Card className="w-full max-w-lg">
-      <CardHeader>
-        <Button variant="ghost" size="sm" onClick={onBack} className="w-fit -ml-2 mb-1">
-          <ArrowLeft className="size-4 mr-1" /> Voltar
-        </Button>
-        <CardTitle>Cadastro de Cliente</CardTitle>
-        <CardDescription>Preencha seus dados para criar uma conta</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 flex flex-col gap-1.5">
-              <Label htmlFor="nome">Nome completo *</Label>
-              <Input id="nome" {...register("nome")} />
-              {errors.nome && <p className="text-destructive text-xs">{errors.nome.message}</p>}
-            </div>
+    <div className="w-full">
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+      >
+        <ArrowLeft className="size-4" /> Voltar
+      </button>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cpf">CPF *</Label>
-              <Input
-                id="cpf"
-                placeholder="000.000.000-00"
-                {...register("cpf")}
-                onChange={(e) => setValue("cpf", maskCpf(e.target.value))}
-              />
-              {errors.cpf && <p className="text-destructive text-xs">{errors.cpf.message}</p>}
-            </div>
+      <div className="mb-6">
+        <div className="divider-red w-10 mb-4" />
+        <h2 className="font-heading text-3xl font-bold tracking-wide">Cadastro de Cliente</h2>
+        <p className="text-muted-foreground text-sm mt-1">Preencha seus dados para criar uma conta</p>
+      </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="rg">RG *</Label>
-              <Input id="rg" {...register("rg")} />
-              {errors.rg && <p className="text-destructive text-xs">{errors.rg.message}</p>}
-            </div>
-
-            <div className="col-span-2 flex flex-col gap-1.5">
-              <Label htmlFor="endereco">Endereço *</Label>
-              <Input id="endereco" {...register("endereco")} />
-              {errors.endereco && <p className="text-destructive text-xs">{errors.endereco.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="profissao">Profissão</Label>
-              <Input id="profissao" {...register("profissao")} />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="telefone">Telefone</Label>
-              <Input
-                id="telefone"
-                placeholder="(00) 00000-0000"
-                {...register("telefone")}
-                onChange={(e) => setValue("telefone", maskPhone(e.target.value))}
-              />
-            </div>
-
-            <div className="col-span-2 flex flex-col gap-1.5">
-              <Label htmlFor="email">E-mail * <span className="text-muted-foreground font-normal text-xs">(usado para login)</span></Label>
-              <Input id="email" type="email" {...register("email")} />
-              {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="senha">Senha *</Label>
-              <Input id="senha" type="password" {...register("senha")} />
-              {errors.senha && <p className="text-destructive text-xs">{errors.senha.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="confirmSenha">Confirmar Senha *</Label>
-              <Input id="confirmSenha" type="password" {...register("confirmSenha")} />
-              {errors.confirmSenha && <p className="text-destructive text-xs">{errors.confirmSenha.message}</p>}
-            </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label htmlFor="nome" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Nome completo *
+            </Label>
+            <Input id="nome" className="h-10 bg-card border-border/60" {...register("nome")} />
+            {errors.nome && <p className="text-destructive text-xs">{errors.nome.message}</p>}
           </div>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full mt-2">
-            {isSubmitting ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
-            Criar conta
-          </Button>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cpf" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              CPF *
+            </Label>
+            <Input
+              id="cpf"
+              placeholder="000.000.000-00"
+              className="h-10 bg-card border-border/60 font-mono"
+              {...register("cpf")}
+              onChange={(e) => setValue("cpf", maskCpf(e.target.value))}
+            />
+            {errors.cpf && <p className="text-destructive text-xs">{errors.cpf.message}</p>}
+          </div>
 
-          <p className="text-center text-sm text-muted-foreground">
-            Já tem conta?{" "}
-            <Link href="/login" className="underline underline-offset-4 hover:text-foreground">
-              Entrar
-            </Link>
-          </p>
-        </form>
-      </CardContent>
-    </Card>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="rg" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              RG *
+            </Label>
+            <Input id="rg" className="h-10 bg-card border-border/60 font-mono" {...register("rg")} />
+            {errors.rg && <p className="text-destructive text-xs">{errors.rg.message}</p>}
+          </div>
+
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label htmlFor="endereco" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Endereço *
+            </Label>
+            <Input id="endereco" className="h-10 bg-card border-border/60" {...register("endereco")} />
+            {errors.endereco && <p className="text-destructive text-xs">{errors.endereco.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="profissao" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Profissão
+            </Label>
+            <Input id="profissao" className="h-10 bg-card border-border/60" {...register("profissao")} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="telefone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Telefone
+            </Label>
+            <Input
+              id="telefone"
+              placeholder="(00) 00000-0000"
+              className="h-10 bg-card border-border/60 font-mono"
+              {...register("telefone")}
+              onChange={(e) => setValue("telefone", maskPhone(e.target.value))}
+            />
+          </div>
+
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              E-mail *{" "}
+              <span className="text-muted-foreground/60 normal-case font-normal">(usado para login)</span>
+            </Label>
+            <Input id="email" type="email" className="h-10 bg-card border-border/60" {...register("email")} />
+            {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="senha" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Senha *
+            </Label>
+            <Input id="senha" type="password" className="h-10 bg-card border-border/60" {...register("senha")} />
+            {errors.senha && <p className="text-destructive text-xs">{errors.senha.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="confirmSenha" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Confirmar Senha *
+            </Label>
+            <Input id="confirmSenha" type="password" className="h-10 bg-card border-border/60" {...register("confirmSenha")} />
+            {errors.confirmSenha && <p className="text-destructive text-xs">{errors.confirmSenha.message}</p>}
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full h-11 mt-1 btn-shimmer font-heading font-semibold tracking-widest uppercase text-sm gap-2 border-0"
+        >
+          {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <UserPlus className="size-4" />}
+          {isSubmitting ? "Criando conta..." : "Criar Conta"}
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Já tem conta?{" "}
+          <Link href="/login" className="text-primary font-medium hover:underline underline-offset-4">
+            Entrar
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }
+

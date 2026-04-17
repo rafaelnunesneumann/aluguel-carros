@@ -5,12 +5,6 @@ import { Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -113,9 +107,10 @@ export function PedidoList({ mode, clienteId }: Props) {
   return (
     <div className="space-y-6">
       {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between animate-card-enter">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Pedidos de Aluguel</h2>
+          <div className="divider-red w-8 mb-3" />
+          <h2 className="font-heading text-3xl font-bold tracking-wide">Pedidos de Aluguel</h2>
           <p className="text-sm text-muted-foreground">
             {mode === "cliente"
               ? "Seus pedidos de aluguel"
@@ -123,11 +118,11 @@ export function PedidoList({ mode, clienteId }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={fetchPedidos} disabled={loading} className="h-9 w-9">
+          <Button variant="outline" size="icon" onClick={fetchPedidos} disabled={loading} className="h-9 w-9 border-border/60">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
           {mode === "cliente" && (
-            <Button onClick={() => setDialogOpen(true)} className="gap-2">
+            <Button onClick={() => setDialogOpen(true)} className="gap-2 btn-shimmer border-0 font-heading font-semibold tracking-wider uppercase text-sm h-10">
               <Plus className="h-4 w-4" />
               Novo Pedido
             </Button>
@@ -136,28 +131,24 @@ export function PedidoList({ mode, clienteId }: Props) {
       </div>
 
       {/* ── Pedidos Table ── */}
-      <Card className="border-border/60">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-semibold">Pedidos</h3>
-            <Badge variant="secondary" className="text-xs font-normal tabular-nums">
-              {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <PedidoTable
-            pedidos={pedidos}
-            loading={loading}
-            onView={handleView}
-            onCancel={handleCancelRequest}
-            mode={mode}
-            onChangeStatus={mode === "agente" ? handleChangeStatus : undefined}
-            onModify={handleModify}
-            onConcederCredito={mode === "agente" && isBanco ? handleConcederCredito : undefined}
-          />
-        </CardContent>
-      </Card>
+      <div className="animate-card-enter animation-delay-100">
+        <div className="flex items-center gap-2.5 mb-4">
+          <h3 className="font-heading text-base font-semibold tracking-wide">Lista de Pedidos</h3>
+          <span className="inline-flex items-center rounded-md border border-border/50 bg-muted/60 px-2 py-0.5 text-xs font-medium tabular-nums">
+            {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
+          </span>
+        </div>
+        <PedidoTable
+          pedidos={pedidos}
+          loading={loading}
+          onView={handleView}
+          onCancel={handleCancelRequest}
+          mode={mode}
+          onChangeStatus={mode === "agente" ? handleChangeStatus : undefined}
+          onModify={handleModify}
+          onConcederCredito={mode === "agente" && isBanco ? handleConcederCredito : undefined}
+        />
+      </div>
 
       {/* ── Dialogs ── */}
       {clienteParaDialog && (

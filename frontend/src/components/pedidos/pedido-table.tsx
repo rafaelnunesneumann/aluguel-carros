@@ -55,11 +55,14 @@ export function PedidoTable({
   if (pedidos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="rounded-full bg-muted p-4 mb-4">
-          <ClipboardList className="h-8 w-8 text-muted-foreground" />
+        <div className="relative mb-5">
+          <div className="rounded-full bg-muted/60 border border-border/40 p-5">
+            <ClipboardList className="h-9 w-9 text-muted-foreground" />
+          </div>
+          <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary/30 animate-ping" />
         </div>
-        <h3 className="text-lg font-semibold">Nenhum pedido encontrado</h3>
-        <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+        <h3 className="font-heading text-xl font-bold tracking-wide">Nenhum pedido encontrado</h3>
+        <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
           {mode === "cliente"
             ? "Você ainda não possui pedidos. Crie um novo pedido de aluguel."
             : "Nenhum pedido cadastrado no sistema."}
@@ -81,24 +84,24 @@ export function PedidoTable({
     pedido.status === "APROVADO";
 
   return (
-    <div className="rounded-lg border border-border/60 overflow-hidden">
+    <div className="rounded-lg border border-border/50 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="w-[60px] font-semibold">#</TableHead>
-            <TableHead className="font-semibold">Cliente</TableHead>
-            <TableHead className="font-semibold">Automóvel</TableHead>
-            <TableHead className="hidden md:table-cell font-semibold">Placa</TableHead>
-            <TableHead className="hidden lg:table-cell font-semibold">Data</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="w-[70px] text-center font-semibold">Ações</TableHead>
+          <TableRow className="bg-muted/30 hover:bg-muted/30 border-border/50">
+            <TableHead className="w-[60px] font-semibold text-xs uppercase tracking-widest text-muted-foreground">#</TableHead>
+            <TableHead className="font-semibold text-xs uppercase tracking-widest text-muted-foreground">Cliente</TableHead>
+            <TableHead className="font-semibold text-xs uppercase tracking-widest text-muted-foreground">Automóvel</TableHead>
+            <TableHead className="hidden md:table-cell font-semibold text-xs uppercase tracking-widest text-muted-foreground">Placa</TableHead>
+            <TableHead className="hidden lg:table-cell font-semibold text-xs uppercase tracking-widest text-muted-foreground">Data</TableHead>
+            <TableHead className="font-semibold text-xs uppercase tracking-widest text-muted-foreground">Status</TableHead>
+            <TableHead className="w-[70px] text-center font-semibold text-xs uppercase tracking-widest text-muted-foreground">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {pedidos.map((pedido) => (
             <TableRow
               key={pedido.id}
-              className="cursor-pointer transition-colors"
+              className="cursor-pointer transition-colors hover:bg-accent/50 border-border/40"
               onClick={() => onView(pedido)}
             >
               <TableCell className="font-mono text-xs text-muted-foreground">
@@ -109,12 +112,12 @@ export function PedidoTable({
               </TableCell>
               <TableCell>
                 <div className="space-y-0.5">
-                  <p className="font-medium leading-none text-sm">{pedido.automovelMarca}</p>
+                  <p className="font-heading font-semibold leading-none text-sm">{pedido.automovelMarca}</p>
                   <p className="text-xs text-muted-foreground">{pedido.automovelModelo}</p>
                 </div>
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                <code className="text-xs bg-muted px-2 py-1 rounded-md font-mono">
+                <code className="text-xs bg-muted/60 border border-border/40 px-2 py-1 rounded-md font-mono">
                   {pedido.automovelPlaca}
                 </code>
               </TableCell>
@@ -127,7 +130,7 @@ export function PedidoTable({
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger
-                    className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-muted-foreground"
                   >
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">Ações</span>

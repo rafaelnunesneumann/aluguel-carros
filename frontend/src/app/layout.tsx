@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Rajdhani } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -12,9 +12,16 @@ const inter = Inter({
   display: "swap",
 });
 
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Aluguel de Carros — Gestão de Clientes",
-  description: "Sistema de gerenciamento de aluguel de automóveis",
+  title: "AutoDrive — Aluguel de Veículos Premium",
+  description: "Plataforma profissional de locação de automóveis. Veículos premium, atendimento de excelência.",
 };
 
 export default function RootLayout({
@@ -23,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${inter.variable} ${rajdhani.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-background antialiased">
         <AuthProvider>
           <ThemeProvider>

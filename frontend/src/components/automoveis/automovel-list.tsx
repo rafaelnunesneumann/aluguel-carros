@@ -6,12 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -107,62 +101,59 @@ export function AutomovelList() {
   return (
     <div className="space-y-6">
       {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between animate-card-enter">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Automóveis</h2>
+          <div className="divider-red w-8 mb-3" />
+          <h2 className="font-heading text-3xl font-bold tracking-wide">Automóveis</h2>
           <p className="text-sm text-muted-foreground">
             Gerencie a frota de automóveis disponíveis para aluguel
           </p>
         </div>
-        <Button onClick={handleCreate} className="gap-2">
+        <Button onClick={handleCreate} className="gap-2 btn-shimmer border-0 font-heading font-semibold tracking-wider uppercase text-sm h-10">
           <Plus className="h-4 w-4" />
           Novo Automóvel
         </Button>
       </div>
 
-      {/* ── Search + Table ── */}
-      <Card className="border-border/60">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2.5">
-              <h3 className="text-base font-semibold">Lista de Automóveis</h3>
-              <Badge variant="secondary" className="text-xs font-normal tabular-nums">
-                {automoveis.length}{" "}
-                {automoveis.length === 1 ? "automóvel" : "automóveis"}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por marca, modelo ou placa..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 w-[280px]"
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={fetchAutomoveis}
-                disabled={loading}
-                className="h-9 w-9 shrink-0"
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              </Button>
-            </div>
+      {/* ── Search + Grid ── */}
+      <div className="space-y-4 animate-card-enter animation-delay-100">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5">
+            <h3 className="font-heading text-base font-semibold tracking-wide">Frota de Veículos</h3>
+            <span className="inline-flex items-center rounded-md border border-border/50 bg-muted/60 px-2 py-0.5 text-xs font-medium tabular-nums">
+              {automoveis.length}{" "}
+              {automoveis.length === 1 ? "veículo" : "veículos"}
+            </span>
           </div>
-        </CardHeader>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por marca, modelo ou placa..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 w-full sm:w-[280px] bg-card border-border/60 h-9"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchAutomoveis}
+              disabled={loading}
+              className="h-9 w-9 shrink-0 border-border/60"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
+          </div>
+        </div>
 
-        <CardContent className="pt-0">
-          <AutomovelTable
-            automoveis={filteredAutomoveis}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDeleteRequest}
-          />
-        </CardContent>
-      </Card>
+        <AutomovelTable
+          automoveis={filteredAutomoveis}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+        />
+      </div>
 
       {/* ── Dialogs ── */}
       <AutomovelDialog
