@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface ContratoRepository extends JpaRepository<Contrato, Long> {
 
     Optional<Contrato> findByPedidoId(Long pedidoId);
+
+    boolean existsByAutomovelId(Long automovelId);
+
+    boolean existsByPedidoClienteId(Long clienteId);
 }

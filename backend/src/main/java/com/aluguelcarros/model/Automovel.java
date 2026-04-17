@@ -45,6 +45,10 @@ public class Automovel {
     @Column(nullable = false, unique = true, length = 10)
     private String placa;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
+    private boolean ativo = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

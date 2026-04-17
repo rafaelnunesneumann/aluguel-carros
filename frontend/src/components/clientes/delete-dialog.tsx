@@ -10,16 +10,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clienteName: string;
   onConfirm: () => void;
+  isDeleting?: boolean;
 }
 
-export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm }: Props) {
+export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm, isDeleting = false }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -39,12 +40,17 @@ export function DeleteDialog({ open, onOpenChange, clienteName, onConfirm }: Pro
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-4">
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            disabled={isDeleting}
+            className="bg-destructive text-white hover:bg-destructive/90 disabled:opacity-70"
           >
-            Sim, excluir
+            {isDeleting ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Excluindo...</>
+            ) : (
+              "Sim, excluir"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

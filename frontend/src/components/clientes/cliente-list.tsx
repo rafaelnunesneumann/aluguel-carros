@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Search, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Search, RefreshCw, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ClienteTable } from "./cliente-table";
 import { ClienteDialog } from "./cliente-dialog";
 import { ClienteDetail } from "./cliente-detail";
@@ -24,6 +33,8 @@ export function ClienteList() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [blockedOpen, setBlockedOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
   const fetchClientes = useCallback(async () => {
@@ -80,17 +91,25 @@ export function ClienteList() {
 
   const handleDeleteConfirm = async () => {
     if (!selectedCliente) return;
+    setIsDeleting(true);
     try {
       await clienteService.deletar(selectedCliente.id);
       toast.success("Cliente excluído", {
         description: `${selectedCliente.nome} foi removido com sucesso.`,
       });
       fetchClientes();
-    } catch {
-      toast.error("Erro ao excluir cliente");
+    } catch (error: any) {
+      const message: string =
+        error?.response?.data?.message || "Erro ao excluir cliente.";
+      if (message.startsWith("ALUGUEL_ATIVO")) {
+        setDeleteOpen(false);
+        setBlockedOpen(true);
+        return;
+      }
+      toast.error("Erro ao excluir cliente", { description: message });
     } finally {
+      setIsDeleting(false);
       setDeleteOpen(false);
-      setSelectedCliente(null);
     }
   };
 
@@ -208,10 +227,37 @@ export function ClienteList() {
 
       <DeleteDialog
         open={deleteOpen}
-        onOpenChange={setDeleteOpen}
+        onOpenChange={(open) => { if (!isDeleting) setDeleteOpen(open); }}
         clienteName={selectedCliente?.nome || ""}
         onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
       />
+
+      {/* Modal de bloqueio — aluguel ativo */}
+      <AlertDialog open={blockedOpen} onOpenChange={(open) => { setBlockedOpen(open); if (!open) setSelectedCliente(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <AlertDialogTitle>Exclusão não permitida</AlertDialogTitle>
+                <AlertDialogDescription className="mt-1">
+                  O cliente{" "}
+                  <strong className="text-foreground">{selectedCliente?.nome}</strong>{" "}
+                  possui um <strong className="text-foreground">aluguel ativo</strong>. Encerre o contrato antes de excluí-lo.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogAction onClick={() => { setBlockedOpen(false); setSelectedCliente(null); }}>
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

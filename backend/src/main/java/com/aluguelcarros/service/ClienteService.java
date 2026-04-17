@@ -5,8 +5,12 @@ import com.aluguelcarros.exception.BusinessException;
 import com.aluguelcarros.exception.ResourceNotFoundException;
 import com.aluguelcarros.model.Cliente;
 import com.aluguelcarros.model.ClienteStatus;
+import com.aluguelcarros.model.Pedido;
 import com.aluguelcarros.model.Rendimento;
+import com.aluguelcarros.model.StatusPedido;
 import com.aluguelcarros.repository.ClienteRepository;
+import com.aluguelcarros.repository.ContratoRepository;
+import com.aluguelcarros.repository.PedidoRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
@@ -23,6 +27,8 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final AuthService authService;
+    private final PedidoRepository pedidoRepository;
+    private final ContratoRepository contratoRepository;
 
     @Transactional(readOnly = true)
     public Page<ClienteResponse> listarTodos(Pageable pageable) {
@@ -97,6 +103,21 @@ public class ClienteService {
     public void deletar(Long id) {
         Cliente cliente = clienteRepository.findByIdAndStatus(id, ClienteStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
+
+        // Bloquear exclusão se houver aluguel ativo (contrato existente para este cliente)
+        if (contratoRepository.existsByPedidoClienteId(id)) {
+            throw new BusinessException("ALUGUEL_ATIVO: Este cliente possui um aluguel ativo e não pode ser excluído.");
+        }
+
+        // Reprovar pedidos pendentes do cliente
+        List<StatusPedido> pendentes = List.of(StatusPedido.CRIADO, StatusPedido.EM_ANALISE);
+        List<Pedido> pedidosPendentes = pedidoRepository.findByClienteIdAndStatusIn(id, pendentes);
+        for (Pedido pedido : pedidosPendentes) {
+            pedido.setStatus(StatusPedido.REPROVADO);
+            pedidoRepository.save(pedido);
+        }
+
+        // Soft delete
         cliente.setStatus(ClienteStatus.DELETED);
         clienteRepository.save(cliente);
     }
