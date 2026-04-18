@@ -267,7 +267,6 @@ aluguel-carros/
 * 📖 [Documentação Oficial do **Next.js**](https://nextjs.org/docs)
 * 📖 [**shadcn/ui** — Componentes](https://ui.shadcn.com/)
 * 📖 [**React Hook Form**](https://react-hook-form.com/)
-* 📖 [**Zod** — Validação de esquemas](https://zod.dev/)
 * 📖 [Documentação de Referência do **Docker**](https://docs.docker.com/)
 
 ---
