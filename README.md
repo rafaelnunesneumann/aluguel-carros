@@ -21,6 +21,7 @@
 - [Funcionalidades Principais](#-funcionalidades-principais)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Arquitetura](#-arquitetura)
+- [Diagramas](#-diagramas)
 - [Instalação e Execução](#-instalação-e-execução)
   - [Pré-requisitos](#pré-requisitos)
   - [Variáveis de Ambiente](#-variáveis-de-ambiente)
@@ -105,7 +106,26 @@ O sistema segue uma arquitetura **cliente-servidor** com separação clara entre
 
 ---
 
-## 🔧 Instalação e Execução
+## � Diagramas
+
+### Casos de Uso
+![Casos de Uso](docs/Casos%20de%20Uso.png)
+
+### Diagrama de Classes
+![Diagrama de Classes](docs/Diagrama%20de%20Classes.png)
+
+### Diagrama de Pacotes
+![Diagrama de Pacotes](docs/Diagrama%20de%20pacotes.png)
+
+### Diagrama de Componentes
+![Diagrama de Componentes](docs/Diagrama%20de%20componentes.png)
+
+### Diagrama de Implantação
+![Diagrama de Implantação](docs/Diagrama%20de%20implantação.png)
+
+---
+
+## �🔧 Instalação e Execução
 
 ### Pré-requisitos
 
@@ -208,7 +228,12 @@ O front-end estará disponível em **http://localhost:3000**.
 aluguel-carros/
 ├── docker-compose.yml           # 🐳 Sobe o PostgreSQL em container
 ├── docs/
-│   └── Historias.txt            # 📋 Histórias de usuário do sistema
+│   ├── Casos de Uso.png             # 📊 Diagrama de casos de uso
+│   ├── Diagrama de Classes.png      # 🧬 Diagrama de classes
+│   ├── Diagrama de pacotes.png      # 📦 Diagrama de pacotes
+│   ├── Diagrama de componentes.png  # 🧩 Diagrama de componentes
+│   ├── Diagrama de implantação.png  # 🚀 Diagrama de implantação
+│   └── Historias.txt                # 📋 Histórias de usuário do sistema
 │
 ├── frontend/                    # 📁 Aplicação Next.js
 │   ├── src/
